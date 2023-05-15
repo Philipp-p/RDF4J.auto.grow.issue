@@ -1,8 +1,8 @@
 package demo;
 
-import converter.IfcConverter;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import converter.rdf2ifc.IFC2RDFConverter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,8 +33,13 @@ public class Application {
       }
 
       logMessage("Converting ifc model to rdf");
-      IfcConverter converter = new IfcConverter();
-      String rdfModel = converter.toRdf(ifcModel);
+      File ifcTtlFile = new File(IFC_PATH + ".ttl");
+      if (!ifcTtlFile.exists()) {
+        IFC2RDFConverter ifc2RDFConverter = new IFC2RDFConverter();
+        FileOutputStream outputStream = new FileOutputStream(ifcTtlFile);
+        ifc2RDFConverter.convert(ifcModel, outputStream, null, null, null, false, false, false);
+        outputStream.close();
+      }
 
       RepositoryUtils repositoryUtils = new RepositoryUtils(RDF_4_J_SERVER);
       if (!repositoryUtils.exists(REPOSITORY_ID)) {
@@ -52,8 +57,7 @@ public class Application {
       logMessage("Adding data to connection");
       var factory = SimpleValueFactory.getInstance();
       IRI context = factory.createIRI(graph);
-      InputStream inputStream = new ByteArrayInputStream(rdfModel.getBytes());
-      connection.add(inputStream, RDFFormat.TURTLE, context);
+      connection.add(ifcTtlFile, RDFFormat.TURTLE, context);
 
       logMessage("Committing first transaction");
       connection.commit();
@@ -67,8 +71,7 @@ public class Application {
       connection.clear(context);
 
       logMessage("Adding data to connection");
-      inputStream = new ByteArrayInputStream(rdfModel.getBytes());
-      connection.add(inputStream, RDFFormat.TURTLE, context);
+      connection.add(ifcTtlFile, RDFFormat.TURTLE, context);
 
       logMessage("Committing second transaction");
       connection.commit();

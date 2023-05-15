@@ -15,6 +15,9 @@ If the port 8080 is already in use, please adapt the command above and Line 18 i
 The Application should convert a rather large IFC file to and RDF model and commit it to the RDF4J repository. Afterwards that the context wil be deleted and the same model will be added to the repository. This should work without any issues.
 
 ## Actual behavior
+
+**NOTE**: The stack traces below all reference the code lines at Philipp-p/RDF4J.auto.grow.issue#6d0c632
+
 The Application will convert a rather large IFC file and add it to the repository. Afterwards the context will be deleted and the same model added again to the repository. This will fail during the commit of the second transaction with the following error message:
 ```java
  WARN [main] (SPARQLProtocolSession.java:1228) - Server reports problem: null (enable debug logging for full details)
